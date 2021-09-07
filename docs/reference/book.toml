@@ -1,0 +1,6 @@
+[book]
+authors = ["irh"]
+language = "en"
+multilingual = false
+src = "."
+title = "Koto Reference"

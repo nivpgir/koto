@@ -75,3 +75,9 @@ a = 1 +
     # Another comment
     4
 assert_eq a, 10
+
+a = 1
+    # Expressions can be broken before or after operators
+    * 2 * 3
+    * 4
+assert_eq a, 24
