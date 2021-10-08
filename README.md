@@ -1,8 +1,9 @@
 # Koto
 
-[![Docs](https://docs.rs/koto/badge.svg)][docs]
+[![Docs](https://img.shields.io/docsrs/koto)][docs]
 [![Crates.io](https://img.shields.io/crates/v/koto.svg)][crates]
 [![CI](https://github.com/koto-lang/koto/workflows/CI/badge.svg)][ci]
+[![Discord](https://img.shields.io/discord/894599423970136167?logo=discord)][discord]
 
 Koto is an embeddable scripting language, written in Rust. It has been designed
 for ease of use and built for speed, with the goal of it being an ideal choice
@@ -136,8 +137,9 @@ A help system is included in the REPL.  Run `help` for instructions.
     in other applications, so it should be a good citizen and not introduce too
     much overhead.
 
-[crates]: https://crates.io/crates/koto
 [ci]: https://github.com/koto-lang/koto/actions
+[crates]: https://crates.io/crates/koto
+[discord]: https://discord.gg/JeV8RuK4CT
 [docs]: https://docs.rs/koto
 [repl]: https://en.wikipedia.org/wiki/Read–eval–print_loop
 
