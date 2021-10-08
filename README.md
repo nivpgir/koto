@@ -20,7 +20,6 @@ iteration during game development, or experimentation in creative coding.
   - [REPL](#repl)
 - [Language Goals](#language-goals)
 - [Editor Support](#editor-support)
-  - [Vim / Neovim](#vim--neovim)
 
 ## Current State
 
@@ -41,15 +40,16 @@ a try, your early feedback will be invaluable.
 import test.assert_eq
 
 # Numbers
-assert_eq (1 + 2.5), 3.5
+x = 1 + 2.5 + 100.sqrt()
+assert_eq x, 13.5
 
 # Strings
-hello = "{}, {}!".format "Hello", "World"
-io.print hello
+name = "Koto"
+io.print "Hello, $name!"
 
 # Functions
 square = |n| n * n
-assert_eq (square 8), 64
+io.print "8 squared is ${square 8}"
 
 add_squares = |a, b| (square a) + (square b)
 assert_eq (add_squares 2, 4), 20
@@ -69,8 +69,18 @@ assert_eq
   ["Buzz", 11, "Fizz", 13, 14, "Fizz Buzz"]
 
 # Maps and tuples
-x = {foo: 42, bar: "bar"}
-assert_eq x.keys().to_tuple(), ("foo", "bar")
+x = {peaches: 42, pears: 99}
+assert_eq
+  x.keys().to_tuple(),
+  ("peaches", "pears")
+
+y = # Maps can also be defined using indented `key: value` pairs
+  apples: 123
+  plums: 99
+
+fruits = x + y # Maps can be combined using the `+` operator
+
+io.print "How many fruits? ${fruits.values().sum()} fruits!"
 ```
 
 ### Learning the Language
