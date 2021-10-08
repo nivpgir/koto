@@ -113,7 +113,7 @@ cargo install koto_cli
 A [REPL][repl] is provided to allow for quick experimentation.
 Launching the `koto` CLI without providing a script enters the REPL.
 
-```
+```haskell
 » koto
 Welcome to Koto v0.1.0
 » 1 + 1
