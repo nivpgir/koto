@@ -96,6 +96,9 @@ that are a good starting point for getting to know the language.
 Reference documentation for Koto's core library can be found
 [here](./docs/reference/core_lib/).
 
+You're also welcome to ask for help in [Discussions][discussions],
+or on the [discord server][discord].
+
 ### Installation
 
 The most recent release of the Koto CLI can be installed with
@@ -140,6 +143,7 @@ A help system is included in the REPL.  Run `help` for instructions.
 [ci]: https://github.com/koto-lang/koto/actions
 [crates]: https://crates.io/crates/koto
 [discord]: https://discord.gg/JeV8RuK4CT
+[discussions]: https://github.com/koto-lang/koto/discussions
 [docs]: https://docs.rs/koto
 [repl]: https://en.wikipedia.org/wiki/Read–eval–print_loop
 
