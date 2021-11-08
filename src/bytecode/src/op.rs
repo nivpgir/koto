@@ -4,26 +4,109 @@
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[repr(u8)]
 pub enum Op {
-    Copy,             // target, source
-    SetEmpty,         // register
-    SetFalse,         // register
-    SetTrue,          // register
-    Set0,             // register
-    Set1,             // register
-    SetNumberU8,      // register, number
-    LoadFloat,        // register, constant
-    LoadFloat16,      // register, constant[2]
-    LoadFloat24,      // register, constant[3]
-    LoadInt,          // register, constant
-    LoadInt16,        // register, constant[2]
-    LoadInt24,        // register, constant[3]
-    LoadString,       // register, constant
-    LoadString16,     // register, constant[2]
-    LoadString24,     // register, constant[3]
-    LoadNonLocal,     // register, constant
-    LoadNonLocal16,   // register, constant[2]
-    LoadNonLocal24,   // register, constant[3]
-    Import,           // register
+    /// Copies a register to another
+    ///
+    /// bytes: [target, source]
+    Copy,
+
+    /// Sets a register to contain Empty
+    ///
+    /// bytes: [target]
+    SetEmpty,
+
+    /// Sets a register to contain Bool(false)
+    ///
+    /// bytes: [target]
+    SetFalse,
+
+    /// Sets a register to contain Bool(true)
+    ///
+    /// bytes: [target]
+    SetTrue,
+
+    /// Sets a register to contain Int(0)
+    ///
+    /// bytes: [target]
+    Set0,
+
+    /// Sets a register to contain Int(1)
+    ///
+    /// bytes: [target]
+    Set1,
+
+    /// Sets a register to contain u8(n)
+    ///
+    /// bytes: [target, n]
+    SetNumberU8,
+
+    /// Loads an f64 constant into a register
+    ///
+    /// bytes: [target, constant]
+    LoadFloat,
+
+    /// Loads an f64 constant with a u16 index into a register
+    ///
+    /// bytes: [target, constant[2]]
+    LoadFloat16,
+
+    /// Loads an f64 constant with a u24 index into a register
+    ///
+    /// bytes: [target, constant[3]]
+    LoadFloat24,
+
+    /// Loads an i64 constant into a register
+    ///
+    /// bytes: [target, constant]
+    LoadInt,
+
+    /// Loads an i64 constant with a u16 index into a register
+    ///
+    /// bytes: [target, constant[2]]
+    LoadInt16,
+
+    /// Loads an i64 constant with a u24 index into a register
+    ///
+    /// bytes: [target, constant[3]]
+    LoadInt24,
+
+    /// Loads a string constant into a register
+    ///
+    /// bytes: [target, constant]
+    LoadString,
+
+    /// Loads a string constant with a u16 index into a register
+    ///
+    /// bytes: [target, constant[2]]
+    LoadString16,
+
+    /// Loads a string constant with a u24 index into a register
+    ///
+    /// bytes: [target, constant[3]]
+    LoadString24,
+
+    /// Loads a non-local value into a register
+    ///
+    /// bytes: [target, constant]
+    LoadNonLocal,
+
+    /// Loads a non-local value with a u16 id index into a register
+    ///
+    /// bytes: [target, constant[2]]
+    LoadNonLocal16,
+
+    /// Loads a non-local value with a u24 id index into a register
+    ///
+    /// bytes: [target, constant[3]]
+    LoadNonLocal24,
+
+    /// Imports a value
+    ///
+    /// The name of the value to be imported will be placed in the register before running this op,
+    /// the imported value will then be placed in the same register.
+    ///
+    /// bytes: [register]
+    Import,
+
     MakeTempTuple,    // register, start register, count
     MakeMap,          // register, size hint
     MakeMap32,        // register, size hint[4]
