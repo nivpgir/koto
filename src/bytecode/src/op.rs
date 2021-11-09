@@ -396,6 +396,8 @@ pub enum Op {
     /// This is used for internal indexing operations.
     /// e.g. when unpacking a temporary value in multi-assignment
     ///
+    /// TODO rename to Index8 or similar
+    ///
     /// [*result, *value, index]
     ValueIndex,
 
@@ -413,17 +415,37 @@ pub enum Op {
     /// [*result, *value, index]
     SliceTo,
 
-    Index, // result, indexable, index
+    /// Accesses a contained value via index
+    ///
+    /// [*result, *indexable, *index]
+    Index,
 
-    SetIndex, // indexable, index, value
+    /// Sets a contained value via index
+    ///
+    /// [*indexable, *value, *index]
+    SetIndex,
 
-    MapInsert, // map, key, value
+    /// Inserts a key/value entry into a map
+    ///
+    /// [*map, *key, *value]
+    MapInsert,
 
-    MetaInsert, // map register, key id, value register
+    /// Inserts a key/value entry into a map's metamap
+    ///
+    /// [*map, *key, *value]
+    MetaInsert,
 
-    MetaInsertNamed, // map register, key id, name register, value register
+    /// Inserts a named key/value entry into a map's metamap
+    ///
+    /// Used for meta keys that take a name as part of the key, like @test or @meta
+    ///
+    /// [*map, *key, *name, *value]
+    MetaInsertNamed,
 
-    MetaExport, // key id, value register
+    /// Inserts a key/value entry into a map's metamap
+    ///
+    /// [*map, *key, *value]
+    MetaExport,
 
     MetaExportNamed, // key id, name register, value register
 
