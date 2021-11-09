@@ -217,7 +217,7 @@ pub enum Op {
     /// The value gets cloned to the Function's captures list at the given index.
     ///
     /// [function register, capture index, value]
-    Capture,          // function, target, source
+    Capture,
 
     Range,            // register, start, end
 
