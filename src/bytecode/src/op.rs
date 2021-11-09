@@ -2,102 +2,105 @@
 ///
 /// Each operation is made up of a byte, followed by N additional bytes that define its behaviour.
 /// The combined operation bytes are interpreted as an [Instruction] by the [InstructionReader].
+///
+/// In the comments for each operation, the additional bytes are specified inside square brackets.
+/// Bytes prefixed with * show that the byte is referring to a register.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[repr(u8)]
 pub enum Op {
-    /// Copies a register to another
+    /// Copies the source value to the target register
     ///
-    /// [target, source]
+    /// [*target, *source]
     Copy,
 
     /// Sets a register to contain Empty
     ///
-    /// [target]
+    /// [*target]
     SetEmpty,
 
     /// Sets a register to contain Bool(false)
     ///
-    /// [target]
+    /// [*target]
     SetFalse,
 
     /// Sets a register to contain Bool(true)
     ///
-    /// [target]
+    /// [*target]
     SetTrue,
 
     /// Sets a register to contain Int(0)
     ///
-    /// [target]
+    /// [*target]
     Set0,
 
     /// Sets a register to contain Int(1)
     ///
-    /// [target]
+    /// [*target]
     Set1,
 
     /// Sets a register to contain Int(n)
     ///
-    /// [target, n]
+    /// [*target, n]
     SetNumberU8,
 
     /// Loads an f64 constant into a register
     ///
-    /// [target, constant]
+    /// [*target, constant]
     LoadFloat,
 
     /// Loads an f64 constant with a u16 index into a register
     ///
-    /// [target, constant[2]]
+    /// [*target, constant[2]]
     LoadFloat16,
 
     /// Loads an f64 constant with a u24 index into a register
     ///
-    /// [target, constant[3]]
+    /// [*target, constant[3]]
     LoadFloat24,
 
     /// Loads an i64 constant into a register
     ///
-    /// [target, constant]
+    /// [*target, constant]
     LoadInt,
 
     /// Loads an i64 constant with a u16 index into a register
     ///
-    /// [target, constant[2]]
+    /// [*target, constant[2]]
     LoadInt16,
 
     /// Loads an i64 constant with a u24 index into a register
     ///
-    /// [target, constant[3]]
+    /// [*target, constant[3]]
     LoadInt24,
 
     /// Loads a string constant into a register
     ///
-    /// [target, constant]
+    /// [*target, constant]
     LoadString,
 
     /// Loads a string constant with a u16 index into a register
     ///
-    /// [target, constant[2]]
+    /// [*target, constant[2]]
     LoadString16,
 
     /// Loads a string constant with a u24 index into a register
     ///
-    /// [target, constant[3]]
+    /// [*target, constant[3]]
     LoadString24,
 
     /// Loads a non-local value into a register
     ///
-    /// [target, constant]
+    /// [*target, constant]
     LoadNonLocal,
 
     /// Loads a non-local value with a u16 id index into a register
     ///
-    /// [target, constant[2]]
+    /// [*target, constant[2]]
     LoadNonLocal16,
 
     /// Loads a non-local value with a u24 id index into a register
     ///
-    /// [target, constant[3]]
+    /// [*target, constant[3]]
     LoadNonLocal24,
 
     /// Imports a value
@@ -105,7 +108,7 @@ pub enum Op {
     /// The name of the value to be imported will be placed in the register before running this op,
     /// the imported value will then be placed in the same register.
     ///
-    /// [register]
+    /// [*register]
     Import,
 
     /// Makes a temporary tuple out of values stored in consecutive registers
@@ -113,73 +116,73 @@ pub enum Op {
     /// Used when a tuple is made which won't be assigned to a value,
     /// e.g. in multiple-assignment: `x, y, z = 1, 2, 3`
     ///
-    /// [target, start register, value count]
+    /// [*target, *start, value count]
     MakeTempTuple,
 
     /// Makes an empty map with the given size hint
     ///
-    /// [target, size hint]
+    /// [*target, size hint]
     MakeMap,
 
     /// Makes an empty map with the given u32 size hint
     ///
-    /// [target, size hint[4]]
+    /// [*target, size hint[4]]
     MakeMap32,
 
     /// Makes a Num2 in the target register
     ///
     /// TODO switch byte order to match MakeTempTuple
     ///
-    /// [target, value count, start register]
+    /// [*target, value count, *start]
     MakeNum2,
 
     /// Makes a Num4 in the target register
     ///
     /// TODO switch byte order to match MakeTempTuple
     ///
-    /// [target, value count, start register]
+    /// [*target, value count, *start]
     MakeNum4,
 
     /// Makes an Iterator out of an iterable value
     ///
-    /// [target, iterable]
+    /// [*target, *iterable]
     MakeIterator,
 
     /// Makes a SequenceBuilder with the given size hint
     ///
-    /// [target, size hint]
+    /// [*target, size hint]
     SequenceStart,
 
     /// Makes a SequenceBuilder with the given u32 size hint
     ///
-    /// [target, size hint[4]]
+    /// [*target, size hint[4]]
     SequenceStart32,
 
     /// Pushes a single value to the end of a SequenceBuilder
     ///
-    /// [target, value register]
+    /// [*target, *value]
     SequencePush,
 
     /// Pushes values from consecutive registers to the end of a SequenceBuilder
     ///
-    /// [target, start register, value count]
+    /// [*target, *start, value count]
     SequencePushN,
 
     /// Converts a SequenceBuilder into a List
     ///
-    /// [register]
+    /// [*register]
     SequenceToList,
 
     /// Converts a SequenceBuilder into a Tuple
     ///
-    /// [register]
+    /// [*register]
     SequenceToTuple,
 
     /// Makes a StringBuilder
     ///
     /// TODO Add a size hint
     ///
-    /// [target]
+    /// [*target]
     StringStart,
 
     /// Pushes a value to the end of a StringBuilder
@@ -187,19 +190,19 @@ pub enum Op {
     /// Strings will have their contents added directly to the StringBuilder
     /// Other values will be formatted to a string and then added to the StrignBuilder.
     ///
-    /// [target, value]
+    /// [*target, *value]
     StringPush,
 
     /// Replaces a StringBuilder with a String containing the builder's contents
     ///
-    /// [target]
+    /// [*target]
     StringFinish,
 
     /// Makes a SimpleFunction
     ///
     /// The N size bytes following this instruction make up the body of the function.
     ///
-    /// [target, arg count, function size[2]]
+    /// [*target, arg count, function size[2]]
     SimpleFunction,
 
     /// Makes a Function
@@ -209,117 +212,240 @@ pub enum Op {
     /// The flags are a bitfield constructed from [FunctionFlags].
     /// The N size bytes following this instruction make up the body of the function.
     ///
-    /// [target, arg count, capture count, flags, function size[2]]
+    /// [*target, arg count, capture count, flags, function size[2]]
     Function,
 
     /// Captures a value for a Function
     ///
     /// The value gets cloned to the Function's captures list at the given index.
     ///
-    /// [function register, capture index, value]
+    /// [*function, capture index, *value]
     Capture,
 
-    Range,            // register, start, end
+    /// Makes a Range with defined start and end values
+    ///
+    /// [*target, *start, *end]
+    Range,
 
-    RangeInclusive,   // register, start, end
+    /// Makes an inclusive Range with defined start and end values
+    ///
+    /// [*target, *start, *end]
+    RangeInclusive,
 
-    RangeTo,          // register, end
+    /// Makes a Range with a defined end value and no start
+    ///
+    /// [*target, *end]
+    RangeTo,
 
-    RangeToInclusive, // register, end
+    /// Makes an inclusive Range with a defined end value and no start
+    ///
+    /// [*target, *end]
+    RangeToInclusive,
 
-    RangeFrom,        // register, start
+    /// Makes a Range with a defined start value and no end
+    ///
+    /// [*target, *start]
+    RangeFrom,
 
-    RangeFull,        // register
+    /// Makes a full Range with undefined start and end
+    ///
+    /// [*target]
+    RangeFull,
 
-    Negate,           // register, source
+    /// Negates a value
+    ///
+    /// [*target, *source]
+    Negate,
 
-    Add,              // result, lhs, rhs
+    /// Adds lhs and rhs together
+    ///
+    /// [*result, *lhs, *rhs]
+    Add,
 
-    Subtract,         // result, lhs, rhs
+    /// Subtracts rhs from lhs
+    ///
+    /// [*result, *lhs, *rhs]
+    Subtract,
 
-    Multiply,         // result, lhs, rhs
+    /// Multiplies lhs and rhs together
+    ///
+    /// [*result, *lhs, *rhs]
+    Multiply,
 
-    Divide,           // result, lhs, rhs
+    /// Divides lhs by rhs
+    ///
+    /// [*result, *lhs, *rhs]
+    Divide,
 
-    Modulo,           // result, lhs, rhs
+    /// Performs the modulo operation with lhs and rhs
+    ///
+    /// [*result, *lhs, *rhs]
+    Modulo,
 
-    Less,             // result, lhs, rhs
+    /// Compares lhs and rhs using the '<' operator
+    ///
+    /// [*result, *lhs, *rhs]
+    Less,
 
-    LessOrEqual,      // result, lhs, rhs
+    /// Compares lhs and rhs using the '<=' operator
+    ///
+    /// [*result, *lhs, *rhs]
+    LessOrEqual,
 
-    Greater,          // result, lhs, rhs
+    /// Compares lhs and rhs using the '>' operator
+    ///
+    /// [*result, *lhs, *rhs]
+    Greater,
 
-    GreaterOrEqual,   // result, lhs, rhs
+    /// Compares lhs and rhs using the '>=' operator
+    ///
+    /// [*result, *lhs, *rhs]
+    GreaterOrEqual,
 
-    Equal,            // result, lhs, rhs
+    /// Compares lhs and rhs using the '==' operator
+    ///
+    /// [*result, *lhs, *rhs]
+    Equal,
 
-    NotEqual,         // result, lhs, rhs
+    /// Compares lhs and rhs using the '!=' operator
+    ///
+    /// [*result, *lhs, *rhs]
+    NotEqual,
 
-    Jump,             // offset[2]
+    /// Causes the instruction pointer to jump forward by a number of bytes
+    ///
+    /// [offset[2]]
+    Jump,
 
-    JumpTrue,         // condition, offset[2]
+    /// Causes the instruction pointer to jump forward, if a condition is true
+    ///
+    /// [*condition, offset[2]]
+    JumpTrue,
 
-    JumpFalse,        // condition, offset[2]
+    /// Causes the instruction pointer to jump forward, if a condition is false
+    ///
+    /// [*condition, offset[2]]
+    JumpFalse,
 
-    JumpBack,         // offset[2]
+    /// Causes the instruction pointer to jump back by a number of bytes
+    ///
+    /// [offset[2]]
+    JumpBack,
 
-    JumpBackFalse,    // offset[2]
+    /// Causes the instruction pointer to jump back, if a condition is false
+    ///
+    /// TODO Can this be removed?
+    ///
+    /// [*condition, offset[2]]
+    JumpBackFalse,
 
-    Call,             // result, function, arg register, arg count
+    /// Calls a function
+    ///
+    /// [*result, *function, *first arg, arg count]
+    Call,
 
-    CallChild,        // result, function, arg register, arg count, parent
+    /// Calls a child function
+    ///
+    /// TODO rename to CallInstance ?
+    ///
+    /// [*result, *function, *first arg, arg count, *parent]
+    CallChild,
 
-    Return,           // register
+    /// Returns from the current frame with the given result
+    ///
+    /// [*result]
+    Return,
 
-    Yield,            // register
+    /// Yields a value from the current generator
+    ///
+    /// [*value]
+    Yield,
 
-    Throw,            // register
+    /// Throws an error
+    ///
+    /// [*error]
+    Throw,
 
-    IterNext,         // output, iterator, jump offset[2]
+    /// Gets the next value from an Iterator
+    ///
+    /// The output from the iterator is placed in the output register.
+    /// If the iterator is finished then the instruction jumps forward by the given offset.
+    ///
+    /// [*output, *iterator, offset[2]]
+    IterNext,
 
-    IterNextTemp,     // output, iterator, jump offset[2]
+    /// Gets the next value from an Iterator, used when the output is treated as temporary
+    ///
+    /// The output from the iterator is placed in the output register.
+    /// The output is treated as temporary, with assigned values being unpacked from the output.
+    ///   - e.g. `for key, value in map`
+    /// If the iterator is finished then the instruction jumps forward by the given offset.
+    ///
+    /// [*output, *iterator, offset[2]]
+    IterNextTemp,
 
-    IterNextQuiet,    // iterator, jump offset[2]
+    /// Gets the next value from an Iterator, used when the output can be ignored
+    ///
+    /// If the iterator is finished then the instruction jumps forward by the given offset.
+    ///
+    /// [*iterator, offset[2]]
+    IterNextQuiet,
 
-    ValueIndex,       // result, value register, signed index
+    /// Accesses a contained value using a u8 index
+    ///
+    /// This is used for internal indexing operations.
+    /// e.g. when unpacking a temporary value in multi-assignment
+    ///
+    /// [*result, *value, index]
+    ValueIndex,
 
-    SliceFrom,        // result, value register, signed index
+    /// Takes a slice from the end of a given List or Tuple, starting from a u8 index
+    ///
+    /// Used in unpacking expressions, e.g. in a match arm
+    ///
+    /// [*result, *value, index]
+    SliceFrom,
 
-    SliceTo,          // result, value register, signed index
+    /// Takes a slice from the start of a given List or Tuple, ending at a u8 index
+    ///
+    /// Used in unpacking expressions, e.g. in a match arm
+    ///
+    /// [*result, *value, index]
+    SliceTo,
 
-    Index,            // result, indexable, index
+    Index, // result, indexable, index
 
-    SetIndex,         // indexable, index, value
+    SetIndex, // indexable, index, value
 
-    MapInsert,        // map, key, value
+    MapInsert, // map, key, value
 
-    MetaInsert,       // map register, key id, value register
+    MetaInsert, // map register, key id, value register
 
-    MetaInsertNamed,  // map register, key id, name register, value register
+    MetaInsertNamed, // map register, key id, name register, value register
 
-    MetaExport,       // key id, value register
+    MetaExport, // key id, value register
 
-    MetaExportNamed,  // key id, name register, value register
+    MetaExportNamed, // key id, name register, value register
 
-    ValueExport,      // name, value
+    ValueExport, // name, value
 
-    Access,           // result, value, key
+    Access, // result, value, key
 
-    IsList,           // register, value
+    IsList, // register, value
 
-    IsTuple,          // register, value
+    IsTuple, // register, value
 
-    Size,             // register, value
+    Size, // register, value
 
-    TryStart,         // catch arg register, catch body offset[2]
+    TryStart, // catch arg register, catch body offset[2]
 
-    TryEnd,           //
+    TryEnd, //
 
-    Debug,            // register, constant[3]
+    Debug, // register, constant[3]
 
-    CheckType,        // register, type (see TypeId)
+    CheckType, // register, type (see TypeId)
 
-    CheckSize,        // register, size
+    CheckSize, // register, size
 
     Unused89,
     Unused90,
