@@ -1,102 +1,103 @@
-/// The operation identifiers used in Koto bytecode
+/// The operations used in Koto bytecode
 ///
-/// See [InstructionReader]
+/// Each operation is made up of a byte, followed by N additional bytes that define its behaviour.
+/// The combined operation bytes are interpreted as an [Instruction] by the [InstructionReader].
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[repr(u8)]
 pub enum Op {
     /// Copies a register to another
     ///
-    /// bytes: [target, source]
+    /// [target, source]
     Copy,
 
     /// Sets a register to contain Empty
     ///
-    /// bytes: [target]
+    /// [target]
     SetEmpty,
 
     /// Sets a register to contain Bool(false)
     ///
-    /// bytes: [target]
+    /// [target]
     SetFalse,
 
     /// Sets a register to contain Bool(true)
     ///
-    /// bytes: [target]
+    /// [target]
     SetTrue,
 
     /// Sets a register to contain Int(0)
     ///
-    /// bytes: [target]
+    /// [target]
     Set0,
 
     /// Sets a register to contain Int(1)
     ///
-    /// bytes: [target]
+    /// [target]
     Set1,
 
-    /// Sets a register to contain u8(n)
+    /// Sets a register to contain Int(n)
     ///
-    /// bytes: [target, n]
+    /// [target, n]
     SetNumberU8,
 
     /// Loads an f64 constant into a register
     ///
-    /// bytes: [target, constant]
+    /// [target, constant]
     LoadFloat,
 
     /// Loads an f64 constant with a u16 index into a register
     ///
-    /// bytes: [target, constant[2]]
+    /// [target, constant[2]]
     LoadFloat16,
 
     /// Loads an f64 constant with a u24 index into a register
     ///
-    /// bytes: [target, constant[3]]
+    /// [target, constant[3]]
     LoadFloat24,
 
     /// Loads an i64 constant into a register
     ///
-    /// bytes: [target, constant]
+    /// [target, constant]
     LoadInt,
 
     /// Loads an i64 constant with a u16 index into a register
     ///
-    /// bytes: [target, constant[2]]
+    /// [target, constant[2]]
     LoadInt16,
 
     /// Loads an i64 constant with a u24 index into a register
     ///
-    /// bytes: [target, constant[3]]
+    /// [target, constant[3]]
     LoadInt24,
 
     /// Loads a string constant into a register
     ///
-    /// bytes: [target, constant]
+    /// [target, constant]
     LoadString,
 
     /// Loads a string constant with a u16 index into a register
     ///
-    /// bytes: [target, constant[2]]
+    /// [target, constant[2]]
     LoadString16,
 
     /// Loads a string constant with a u24 index into a register
     ///
-    /// bytes: [target, constant[3]]
+    /// [target, constant[3]]
     LoadString24,
 
     /// Loads a non-local value into a register
     ///
-    /// bytes: [target, constant]
+    /// [target, constant]
     LoadNonLocal,
 
     /// Loads a non-local value with a u16 id index into a register
     ///
-    /// bytes: [target, constant[2]]
+    /// [target, constant[2]]
     LoadNonLocal16,
 
     /// Loads a non-local value with a u24 id index into a register
     ///
-    /// bytes: [target, constant[3]]
+    /// [target, constant[3]]
     LoadNonLocal24,
 
     /// Imports a value
@@ -104,78 +105,222 @@ pub enum Op {
     /// The name of the value to be imported will be placed in the register before running this op,
     /// the imported value will then be placed in the same register.
     ///
-    /// bytes: [register]
+    /// [register]
     Import,
 
-    MakeTempTuple,    // register, start register, count
-    MakeMap,          // register, size hint
-    MakeMap32,        // register, size hint[4]
-    MakeNum2,         // register, element count, first element
-    MakeNum4,         // register, element count, first element
-    MakeIterator,     // register, range
-    SequenceStart,    // register, size hint
-    SequenceStart32,  // register, size hint[4]
-    SequencePush,     // register, value
-    SequencePushN,    // register, start register, count
-    SequenceToList,   // register
-    SequenceToTuple,  // register
-    StringStart,      // register
-    StringPush,       // register, value register
-    StringFinish,     // register
-    SimpleFunction,   // register, arg count, size[2]
-    Function,         // register, arg count, capture count, flags, size[2]
+    /// Makes a temporary tuple out of values stored in consecutive registers
+    ///
+    /// Used when a tuple is made which won't be assigned to a value,
+    /// e.g. in multiple-assignment: `x, y, z = 1, 2, 3`
+    ///
+    /// [target, start register, value count]
+    MakeTempTuple,
+
+    /// Makes an empty map with the given size hint
+    ///
+    /// [target, size hint]
+    MakeMap,
+
+    /// Makes an empty map with the given u32 size hint
+    ///
+    /// [target, size hint[4]]
+    MakeMap32,
+
+    /// Makes a Num2 in the target register
+    ///
+    /// TODO switch byte order to match MakeTempTuple
+    ///
+    /// [target, value count, start register]
+    MakeNum2,
+
+    /// Makes a Num4 in the target register
+    ///
+    /// TODO switch byte order to match MakeTempTuple
+    ///
+    /// [target, value count, start register]
+    MakeNum4,
+
+    /// Makes an Iterator out of an iterable value
+    ///
+    /// [target, iterable]
+    MakeIterator,
+
+    /// Makes a SequenceBuilder with the given size hint
+    ///
+    /// [target, size hint]
+    SequenceStart,
+
+    /// Makes a SequenceBuilder with the given u32 size hint
+    ///
+    /// [target, size hint[4]]
+    SequenceStart32,
+
+    /// Pushes a single value to the end of a SequenceBuilder
+    ///
+    /// [target, value register]
+    SequencePush,
+
+    /// Pushes values from consecutive registers to the end of a SequenceBuilder
+    ///
+    /// [target, start register, value count]
+    SequencePushN,
+
+    /// Converts a SequenceBuilder into a List
+    ///
+    /// [register]
+    SequenceToList,
+
+    /// Converts a SequenceBuilder into a Tuple
+    ///
+    /// [register]
+    SequenceToTuple,
+
+    /// Makes a StringBuilder
+    ///
+    /// TODO Add a size hint
+    ///
+    /// [target]
+    StringStart,
+
+    /// Pushes a value to the end of a StringBuilder
+    ///
+    /// Strings will have their contents added directly to the StringBuilder
+    /// Other values will be formatted to a string and then added to the StrignBuilder.
+    ///
+    /// [target, value]
+    StringPush,
+
+    /// Replaces a StringBuilder with a String containing the builder's contents
+    ///
+    /// [target]
+    StringFinish,
+
+    /// Makes a SimpleFunction
+    ///
+    /// The N size bytes following this instruction make up the body of the function.
+    ///
+    /// [target, arg count, function size[2]]
+    SimpleFunction,
+
+    /// Makes a Function
+    ///
+    /// Like a SimpleFunction, but with extended properties and captured values.
+    ///
+    /// The flags are a bitfield constructed from [FunctionFlags].
+    /// The N size bytes following this instruction make up the body of the function.
+    ///
+    /// [target, arg count, capture count, flags, function size[2]]
+    Function,
+
+    /// Captures a value for a Function
+    ///
+    /// The value gets cloned to the Function's captures list at the given index.
+    ///
+    /// [function register, capture index, value]
     Capture,          // function, target, source
+
     Range,            // register, start, end
+
     RangeInclusive,   // register, start, end
+
     RangeTo,          // register, end
+
     RangeToInclusive, // register, end
+
     RangeFrom,        // register, start
+
     RangeFull,        // register
+
     Negate,           // register, source
+
     Add,              // result, lhs, rhs
+
     Subtract,         // result, lhs, rhs
+
     Multiply,         // result, lhs, rhs
+
     Divide,           // result, lhs, rhs
+
     Modulo,           // result, lhs, rhs
+
     Less,             // result, lhs, rhs
+
     LessOrEqual,      // result, lhs, rhs
+
     Greater,          // result, lhs, rhs
+
     GreaterOrEqual,   // result, lhs, rhs
+
     Equal,            // result, lhs, rhs
+
     NotEqual,         // result, lhs, rhs
+
     Jump,             // offset[2]
+
     JumpTrue,         // condition, offset[2]
+
     JumpFalse,        // condition, offset[2]
+
     JumpBack,         // offset[2]
+
     JumpBackFalse,    // offset[2]
+
     Call,             // result, function, arg register, arg count
+
     CallChild,        // result, function, arg register, arg count, parent
+
     Return,           // register
+
     Yield,            // register
+
     Throw,            // register
+
     IterNext,         // output, iterator, jump offset[2]
+
     IterNextTemp,     // output, iterator, jump offset[2]
+
     IterNextQuiet,    // iterator, jump offset[2]
+
     ValueIndex,       // result, value register, signed index
+
     SliceFrom,        // result, value register, signed index
+
     SliceTo,          // result, value register, signed index
+
     Index,            // result, indexable, index
+
     SetIndex,         // indexable, index, value
+
     MapInsert,        // map, key, value
+
     MetaInsert,       // map register, key id, value register
+
     MetaInsertNamed,  // map register, key id, name register, value register
+
     MetaExport,       // key id, value register
+
     MetaExportNamed,  // key id, name register, value register
+
     ValueExport,      // name, value
+
     Access,           // result, value, key
+
     IsList,           // register, value
+
     IsTuple,          // register, value
+
     Size,             // register, value
+
     TryStart,         // catch arg register, catch body offset[2]
+
     TryEnd,           //
+
     Debug,            // register, constant[3]
+
     CheckType,        // register, type (see TypeId)
+
     CheckSize,        // register, size
+
     Unused89,
     Unused90,
     Unused91,
